@@ -1,0 +1,20 @@
+{
+  "name": "pokemory",
+  "version": "1.0.0",
+  "scripts": {
+    "build-css": "sass ./resources/scss/main.scss ./public/build/css/main.css -s compressed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Puxarnal/Pokemory.git"
+  },
+  "author": "Pux <loic.cardin@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Puxarnal/Pokemory/issues"
+  },
+  "homepage": "https://github.com/Puxarnal/Pokemory#readme",
+  "devDependencies": {
+    "sass": "^1.35.1"
+  }
+}
