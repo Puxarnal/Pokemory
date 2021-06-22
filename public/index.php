@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8">
     <title>Accueil | Pokémory</title>
@@ -8,6 +9,7 @@
     <link rel="icon" href="/img/favicon.png" />
     <link rel="stylesheet" type="text/css" href="/build/css/main.css" />
 </head>
+
 <body>
     <div class="container">
         <header class="mt-4 mb-3">
@@ -77,7 +79,7 @@
         <footer class="mt-5">
             <nav class="row text-center">
                 <div class="col">
-                    <a href="#">
+                    <a href="https://github.com/Puxarnal/Pokemory">
                         Voir sur GitHub
                     </a>
                 </div>
@@ -90,4 +92,5 @@
         </footer>
     </div>
 </body>
+
 </html>
