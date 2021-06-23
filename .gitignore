@@ -2,7 +2,8 @@
 .docker/mariadb/mysql
 
 # vendor dependencies
-node_modules/
+/node_modules/
+/vendor/
 
 # generated files
 public/build/
