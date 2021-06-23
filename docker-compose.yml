@@ -13,7 +13,7 @@ services:
             - webserver
 
     php:
-        image: php:7-fpm
+        build: .docker/php
         volumes:
             - .:/var/www/html
         depends_on:
