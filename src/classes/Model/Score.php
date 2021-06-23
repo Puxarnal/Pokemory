@@ -10,17 +10,17 @@ use DateInterval;
 class Score
 {
     /**
-     * @property int|null $id L'identifiant du score en base de données
+     * @property int $id L'identifiant du score en base de données
      */
     protected $id;
 
     /**
-     * @property string|null $pseudonym Le pseudonyme du joueur
+     * @property string $pseudonym Le pseudonyme du joueur
      */
     protected $pseudonym;
 
     /**
-     * @property DateInterval|null $time Le temps du joueur
+     * @property DateInterval $time Le temps du joueur
      */
     protected $time;
 
