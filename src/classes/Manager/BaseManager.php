@@ -23,7 +23,6 @@ abstract class BaseManager implements ManagerInterface
 
             } catch (\Exception $e) {
                 // TODO: handle errors
-                die($e->getMessage());
                 return null;
             }
         }
