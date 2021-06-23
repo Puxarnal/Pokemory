@@ -1,2 +1,8 @@
+# MariaDB container resources
+.docker/mariadb/mysql
+
+# vendor dependencies
 node_modules/
+
+# generated files
 public/build/

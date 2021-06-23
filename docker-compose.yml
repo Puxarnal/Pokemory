@@ -16,8 +16,40 @@ services:
         image: php:7-fpm
         volumes:
             - .:/var/www/html
+        depends_on:
+            - mariadb
         networks:
             - webserver
+            - database
+
+    mariadb:
+        image: mariadb:latest
+        volumes:
+            - .docker/mariadb/init:/docker-entrypoint-initdb.d:z
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: admin
+            MYSQL_DATABASE: pokemory
+        networks:
+            - database
+
+    phpmyadmin:
+        image: phpmyadmin:latest
+        ports:
+            - "8081:80"
+        environment:
+            PMA_HOST: mariadb
+            PMA_USER: admin
+            PMA_PASSWORD: admin
+        depends_on:
+            - mariadb
+        networks:
+            - database
+        
+
 networks:
     webserver:
+        driver: bridge
+    database:
         driver: bridge
