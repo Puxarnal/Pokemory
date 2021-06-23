@@ -64,10 +64,10 @@ class ScoreManager extends BaseManager
     /**
      * Récupère une liste des meilleurs scores enregistrés,
      * triés avec le meilleur en premier
-     * @param int $limit=5 Le nombre de temps à récupérer
+     * @param int $limit Le nombre de temps à récupérer
      * @return Score[]
      */
-    public static function findBestScores(int $limit = 5): array
+    public static function findBestScores(int $limit): array
     {
         $connection = static::getConnection();
 
@@ -75,7 +75,9 @@ class ScoreManager extends BaseManager
             'SELECT `id`, `pseudonym`, `time` FROM `scores` ORDER BY `time` ASC LIMIT :limit'
         );
 
-        if (!$query->execute(['limit' => $limit])) {
+        $query->bindParam(':limit', $limit, \PDO::PARAM_INT);
+
+        if (!$query->execute()) {
             return [];
         }
 
