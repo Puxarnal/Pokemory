@@ -26,6 +26,8 @@ services:
         image: mariadb:latest
         volumes:
             - .docker/mariadb/init:/docker-entrypoint-initdb.d:z
+        ports:
+            - "8306:3306"
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_USER: admin
@@ -46,7 +48,6 @@ services:
             - mariadb
         networks:
             - database
-        
 
 networks:
     webserver:
