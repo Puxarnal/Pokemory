@@ -23,6 +23,6 @@ abstract class Utils
             $date->add($interval);
         }
 
-        return $now->getTimestamp() - $date->getTimestamp();
+        return $date->getTimestamp() - $now->getTimestamp();
     }
 }
