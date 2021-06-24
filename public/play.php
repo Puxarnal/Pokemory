@@ -84,7 +84,7 @@ include __DIR__ . '/../resources/templates/header.php';
         </div>
     </section>
 
-    <script src="/js/game.js" async></script>
+    <script src="/build/js/game.js" async></script>
 
 </div>
 
