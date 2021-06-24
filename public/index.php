@@ -37,13 +37,16 @@
                     <ol>
                         <?php
                             foreach ($best_scores as $score) {
+                                $time = $score->getTime();
                                 ?>
                                 <li>
                                     <b>
                                         <?= $score->getPseudonym() ?>
                                     </b>
                                     -
-                                    <?= $score->getTime()->format('') ?>
+                                    <abbr title="<?= $time->format('%i minutes et %s secondes') ?>">
+                                        <?= $time->format("%I'%S''") ?>
+                                    </abbr>
                                 </li>
                                 <?php
                             }
