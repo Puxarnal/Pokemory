@@ -27,8 +27,8 @@
                     ?>
                     <p>
                         Il semblerait que personne n'a encore joué à Pokémory.
-                        Ça vous dit de
-                        <a href="/play.php" title="Jouer à Pokémory">tenter votre chance</a>
+                        Ça te dit de
+                        <a href="/play.php" title="Jouer à Pokémory">tenter ta chance</a>
                         ?
                     </p>
                     <?php
@@ -43,7 +43,7 @@
                                         <?= $score->getPseudonym() ?>
                                     </b>
                                     -
-                                    <?= $score->getTime()->format() ?>
+                                    <?= $score->getTime()->format('') ?>
                                 </li>
                                 <?php
                             }
