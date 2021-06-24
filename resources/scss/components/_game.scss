@@ -1,0 +1,43 @@
+@import "../animations/victory";
+
+.game {
+    position: relative;
+
+    &-start, &-end {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+
+        background-color: rgba($color: $white, $alpha: 0.9);
+        z-index: 1000;
+    }
+
+    &-board {
+        &-timer {
+            width: 100%;
+        }
+    }
+
+    &-end {
+        &-victory {
+            &-spinner {
+                &-rail {
+                    position: relative;
+                }
+
+                &-ball, &-img {
+                    transform-origin: center;
+                }
+
+                &-ball {
+                    position: absolute;
+                    animation: victory-roll 2s ease-in-out infinite alternate;
+                }
+            }
+        }
+    }
+}

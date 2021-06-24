@@ -1,0 +1,38 @@
+.pokemon-card {
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+
+    &, &-back, &-front {
+        transform-origin: center;
+        transition: transform .2s ease-in;
+    }
+
+    &-front {
+        transform: scale(0);
+    }
+
+    &-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: scale(1);
+
+        background: url('/img/poke-ball.png') no-repeat center;
+    }
+
+    &-frame {
+        position: relative;
+    }
+
+    &-revealed &-front {
+        transform: scale(1);
+    }
+
+    &-revealed &-back {
+        transform: scale(0);
+    }
+}

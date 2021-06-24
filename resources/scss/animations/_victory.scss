@@ -1,0 +1,10 @@
+@keyframes victory-roll {
+    0% {
+        left: 0;
+        transform: translateX(-50%) rotate(0deg);
+    }
+    100% {
+        left: 100%;
+        transform: translateX(-50%) rotate(360deg)
+    }
+}
