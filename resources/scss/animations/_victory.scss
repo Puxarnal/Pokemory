@@ -1,9 +1,26 @@
+/**
+ * Animation d'un objet qui se déplace de gauche
+ * à droite en effectuant une rotation sur lui-même.
+ * Cette animation est utilisée sur l'écran de fin
+ * du jeu après une victoire, pendant le temps de
+ * traitement de l'enregistrement du temps du joueur.
+ */
 @keyframes victory-roll {
     0% {
+        /**
+         * Au début de l'animation, l'objet se situe
+         * au tout début de sa trajectoire, et il
+         * n'a encore subi aucune rotation
+         */
         left: 0;
         transform: translateX(-50%) rotate(0deg);
     }
     100% {
+        /**
+         * À la fin de l'animation, l'objet se situe
+         * à la toute fin de sa trajectoire et il
+         * a fait un tour complet sur lui-même !
+         */
         left: 100%;
         transform: translateX(-50%) rotate(360deg)
     }

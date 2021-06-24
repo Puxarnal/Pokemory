@@ -1,38 +1,110 @@
 .pokemon-card {
+    /**
+     * Les cartes sont représentées par des <div>.
+     * Or une <div> n'est pas un élément interactif
+     * par défaut.
+     * On attribue donc aux cartes un curseur de type
+     * pointeur (généralement en forme de main avec
+     * un doigt levé) pour indiquer à l'utilisateur
+     * que l'élément est interactif.
+     */
     cursor: pointer;
 
+    // On centre horizontalement le contenu des cartes
     display: flex;
     justify-content: center;
 
-    &, &-back, &-front {
-        transform-origin: center;
+    &-frame {
+        /**
+         * On a besoin de définir un conteneur relatif
+         * pour les deux faces d'une même carte afin
+         * que celles-ci occupent le même espace et ne
+         * se placent pas l'une sous l'autre.
+         * En l'occurrence ici, on placera le "dos" de
+         * chaque carte sur sa "face".
+         */
+        position: relative;
+    }
+
+    &-front, &-back {
+        /**
+         * On prépare les effets de transormation et de
+         * transition sur les deux faces des cartes.
+         *
+         * Définir le point de référence au centre du bord
+         * inférieur des deux faces permet un clin d'oeil
+         * à l'animation du Pokémon qui entre et sort de
+         * sa Poké-ball lors de la transition entre le
+         * dos et la face d'une carte.
+         */
+        transform-origin: center bottom;
+        /**
+         * L'animation des transformations CSS entre deux
+         * états (face cachée / face visible) donnera
+         * une illusion de mouvement.
+         */
         transition: transform .2s ease-in;
     }
 
     &-front {
+        /**
+         * Par défaut le côté "face" des cartes est
+         * redimensionné à 0% de sa taille, c'est-à-dire
+         * qu'il est invisible.
+         * Lorsqu'une carte passera d'un état "face visible"
+         * à "face cachée", l'animation de la transformation
+         * CSS donnera l'illusion que le Pokémon entrera
+         * dans sa Poké-ball...
+         */
         transform: scale(0);
     }
 
     &-back {
+        /**
+         * Le positionnement absolu du "dos" des cartes
+         * permet de l'afficher dans la même zone
+         * que la "face".
+         * Son dimensionnement à 100% de la largeur
+         * et de la hauteur de son parent permet de
+         * lui donner une zone d'affichage qui est
+         * exactement la même que celle de la "face".
+         * Le résultat est une impression que les
+         * deux images occupent le même espace.
+         */
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        transform: scale(1);
-
+        // Image au dos des cartes
         background: url('/img/poke-ball.png') no-repeat center;
-    }
-
-    &-frame {
-        position: relative;
+        /**
+         * Par défaut le côté "dos" des cartes est
+         * redimensionné à 100% de sa taille, c'est-à-dire
+         * qu'il est directement visible à sa taille
+         * maximale.
+         */
+        transform: scale(1);
     }
 
     &-revealed &-front {
+        /**
+         * Lorsqu'une carte est retournée face visible,
+         * son côté "face" reprend 100% de sa taille,
+         * c'est ce qui le rend visible.
+         * Cette transformation animée donnera
+         * l'impression que le Pokémon sortira de sa
+         * Poké-ball...
+         */
         transform: scale(1);
     }
 
     &-revealed &-back {
+        /**
+         * Lorsqu'une carte est retournée face visible,
+         * son côté "dos" est redimensionné à 0% de sa
+         * taille, ce qui le rend invisible.
+         */
         transform: scale(0);
     }
 }

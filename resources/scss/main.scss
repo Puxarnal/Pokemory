@@ -1,23 +1,28 @@
+// import des fonctions Bootstrap
 @import "../../node_modules/bootstrap/scss/functions";
 
+// import des paramètres personnalisés
 @import "variables";
 
+// import des paramètres, mixins et utilitaires par défaut de Bootstrap
 @import "../../node_modules/bootstrap/scss/variables";
 @import "../../node_modules/bootstrap/scss/mixins";
 @import "../../node_modules/bootstrap/scss/utilities";
 
+// import des styles de base de Bootstrap
 @import "../../node_modules/bootstrap/scss/root";
 @import "../../node_modules/bootstrap/scss/reboot";
 @import "../../node_modules/bootstrap/scss/utilities/api";
 
+// import des layouts Bootstrap
 @import "../../node_modules/bootstrap/scss/containers";
 @import "../../node_modules/bootstrap/scss/grid";
 
+// import des composants Bootstrap
 @import "../../node_modules/bootstrap/scss/buttons";
 @import "../../node_modules/bootstrap/scss/forms/labels";
 @import "../../node_modules/bootstrap/scss/forms/form-control";
 
-@import "../../node_modules/bootstrap/scss/spinners";
-
+// import des composants personnalisés
 @import "components/game";
 @import "components/pokemon";

@@ -1,23 +1,32 @@
+// import des définitions d'animations
 @import "../animations/victory";
 
 .game {
     position: relative;
 
     &-start, &-end {
+        /**
+         * Les écrans de début et de fin doivent recouvrir
+         * entièrement le plateau de jeu (positionnement
+         * absolu, width et height à 100%) en se plaçant
+         * au premier plan (z-index élevé) afin qu'on puisse
+         * voir les cartes par transparence (background)
+         * sans pour autant pouvoir interagir avec
+         */
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        z-index: 1000;
+        background-color: rgba($color: $white, $alpha: 0.9);
         display: flex;
         justify-content: center;
-
-        background-color: rgba($color: $white, $alpha: 0.9);
-        z-index: 1000;
     }
 
     &-board {
         &-timer {
+            // La jauge du timer doit faire la largeur du plateau
             width: 100%;
         }
     }
@@ -25,17 +34,47 @@
     &-end {
         &-victory {
             &-spinner {
+                // Animation de chargement du l'écran de fin
+
                 &-rail {
+                    /**
+                     * L'animation suit une trajectoire linéaire
+                     * le long d'un "rail", d'où le positionnement
+                     * relatif de celui-ci ; l'objet qui se déplace
+                     * sera positionné par rapport à cet élément.
+                     */
                     position: relative;
                 }
 
-                &-ball, &-img {
-                    transform-origin: center;
-                }
-
                 &-ball {
+                    /**
+                     * L'objet doit avoir un positionnement absolu
+                     * pour caler sa trajectoire sur le "rail"
+                     */
                     position: absolute;
+                    /**
+                     * On assigne l'animation à l'objet de sorte que :
+                     *      - une itération de l'animation durera 2 secondes
+                     *      - l'animation subira un effet d'accélération puis de ralentissement (`ease-in-out`)
+                     *      - elle sera jouée en boucle (`infinite`)
+                     *      - elle sera jouée à l'endroit, puis à l'envers, pluis à l'endroit, etc. (`alternate`)
+                     *
+                     * La déclaration suivante se décompose comme suit :
+                     *
+                     *     animation-name: victory-roll;
+                     *     animation-duration: 2s;
+                     *     animation-timing-function: ease-in-out;
+                     *     animation-iteration-count: infinite;
+                     *     animation-direction: alternate;
+                     */
                     animation: victory-roll 2s ease-in-out infinite alternate;
+                    /**
+                     * Important : il faut placer le point de référence
+                     * des transformations (décalage, rotation) de
+                     * l'image en son centre pour éviter des effets de
+                     * trajectoire hasardeux...
+                     */
+                    transform-origin: center;
                 }
             }
         }
