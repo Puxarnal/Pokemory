@@ -21,7 +21,7 @@ class PokemonManager extends BaseManager
             'img' => $pokemon->getImageUrl()
         ];
 
-        if ($pokemon->id) {
+        if ($pokemon->getId()) {
             $query = $connection->prepare(
                 'UPDATE `pokemons` SET `name` = :name, `fr` = :fr, `img` = :img WHERE `id` = :id'
             );
@@ -43,7 +43,7 @@ class PokemonManager extends BaseManager
 
     public static function delete($pokemon): bool
     {
-        if (!$pokemon->id) {
+        if (!$pokemon->getId()) {
             return false;
         }
 
@@ -53,7 +53,7 @@ class PokemonManager extends BaseManager
             'DELETE FROM `pokemons` WHERE `id` = :id'
         );
 
-        return $query->execute(['id' => $pokemon->id]);
+        return $query->execute(['id' => $pokemon->getId()]);
     }
 
     public static function findRandom(int $limit)

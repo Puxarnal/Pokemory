@@ -21,7 +21,7 @@ class ScoreManager extends BaseManager
             'time' => Utils::intervalToSeconds($score->getTime())
         ];
 
-        if ($score->id) {
+        if ($score->getId()) {
             $query = $connection->prepare(
                 'UPDATE `scores` SET `pseudonym` = :pseudonym, `time` = :time WHERE `id` = :id'
             );
@@ -48,7 +48,7 @@ class ScoreManager extends BaseManager
      */
     public static function delete($score): bool
     {
-        if (!$score->id) {
+        if (!$score->getId()) {
             return false;
         }
 
@@ -58,7 +58,7 @@ class ScoreManager extends BaseManager
             'DELETE FROM `scores` WHERE `id` = :id'
         );
 
-        return $query->execute(['id' => $score->id]);
+        return $query->execute(['id' => $score->getId()]);
     }
 
     /**
