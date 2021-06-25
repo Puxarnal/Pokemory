@@ -1,3 +1,14 @@
+/**
+ * Toute l'initialisation du jeu se fait dans
+ * une IIFE (une fonction qui est appelée
+ * immédiatement après sa définition). Ceci
+ * permet de ne pas exposer les variables qui
+ * seront définies dans son scope et donc de
+ * garder le fonctionnement du jeu dans une
+ * sorte de "boîte noire".
+ * 
+ * @see https://developer.mozilla.org/fr/docs/Glossary/IIFE
+ */
 (() => {
     /**
      * Configuration du jeu
@@ -8,38 +19,66 @@
          */
         maxAllowedTime: 3 * 60 * 1000,
         /**
-         * Configuration des étapes du jeu
+         * Configuration des écrans du jeu
          * La propriété `element` permet d'accéder directement
-         * à l'élément du DOM dans lequel se déroule l'étape.
+         * à l'élément du DOM représentant l'écran.
          * La propriété `discard` indique si l'élément doit être
-         * complètement masqué lorsqu'on quitte l'étape.
+         * complètement masqué lorsqu'on quitte l'écran.
+         * Si la propriété facultative `init` peut être une
+         * fonction qui sera exécutée avant l'affichage de
+         * l'écran.
          */
         steps: {
+            // Premier écran (avant la partie)
             start: {
                 element: document.querySelector('.game-start'),
                 discard: true,
             },
+            // Deuxième écran (jeu)
             board: {
                 element: document.querySelector('.game-board'),
                 discard: false,
+                // Avant de passer à l'écran du jeu...
                 init: () => {
+                    /**
+                     * ...on garde en mémoire le timestamp du
+                     * début de la partie (il nous servira à
+                     * calculer la durée du jeu)
+                     */
                     board.startTime = Date.now()
+                    /**
+                     * ...on initialise le timer qui mettra à
+                     * jour la jauge de temps et vérifiera que
+                     * le joueur n'a pas dépensé tout le temps
+                     * qui lui était imparti
+                     *
+                     * La fonction `setInterval()` retourne un
+                     * identifiant qui nous servira, à la fin
+                     * du jeu, à arrêter le timer.
+                     *
+                     * @see https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
+                     */
                     board.timerId = setInterval(
                         updateTimer,
                         config.board.timerUpdateInterval
                     )
-                }
+                },
             },
+            // Dernier écran (fin de partie)
             end: {
                 element: document.querySelector('.game-end'),
                 discard: true,
+                // Avant de passer au dernier écran...
                 init: () => {
+                    // ...s'il reste des cartes non retournées...
                     if (board.remainingCards > 0) {
+                        // ...alors on initialise l'écran de défaite
                         handleDefeat()
                     } else {
+                        // ...sinon, on initialise l'écran de victoire
                         handleVictory()
                     }
-                }
+                },
             },
         },
         /**
@@ -47,130 +86,114 @@
          */
         board: {
             /**
-             * Délai en millisecondes avant que deux cartes qui ne
-             * matchent pas se retournent automatiquement
+             * Délai en millisecondes avant que deux cartes
+             * retournées qui ne correspondent pas se
+             * retournent automatiquement
              */
             unrevealDelay: 600,
             /**
              * Intervalle en millisecondes auquel le timer est
              * mis à jour
              */
-            timerUpdateInterval: 400
+            timerUpdateInterval: 400,
         },
-    };
+    }
 
-    /**
-     * Représente le score du joueur qui sera envoyé au
-     * serveur pour être enregistré en base de données
-     * si le joueur parvient à terminer le jeu dans le
-     * temps imparti
+    /*
+     * ==================================================
+     *  Gestion de la navigation entre écrans
+     * ==================================================
      */
-    const score = {
-        player: '',
-        time: 0,
-    };
 
     /**
      * Passe à une étape du jeu
      * @param {String} name Le nom de l'étape à laquelle passer
      */
     const goToStep = (name) => {
-        const step = config.steps[name];
+        const step = config.steps[name]
         if (step) {
             if (step.init) {
                 step.init()
             }
-            step.element.hidden = false;
-            step.element.setAttribute('aria-hidden', 'false');
+            step.element.hidden = false
+            step.element.setAttribute('aria-hidden', 'false')
         }
-    };
+    }
 
     /**
      * Quitte une étape du jeu
      * @param {String} name Le nom de l'étape à quitter
      */
     const discardStep = (name) => {
-        const step = config.steps[name];
+        const step = config.steps[name]
         if (step) {
-            step.element.hidden = step.discard;
-            step.element.setAttribute('aria-hidden', 'true');
+            step.element.hidden = step.discard
+            step.element.setAttribute('aria-hidden', 'true')
         }
-    };
+    }
 
-    /**
-     * Gestion de la première étape du jeu
+    /*
+     * ==================================================
+     *  Gestion du jeu
+     * ==================================================
      */
-    config.steps.start.element.querySelector('.game-start-form')
-        // Lorsque l'utilisateur valide son pseudo...
-        .addEventListener('submit', (event) => {
-            // ...on empêche le formulaire d'être envoyé au serveur...
-            event.preventDefault();
-            // ...on renseigne le pseudo du joueur...
-            score.player = event.target.elements.pseudo.value;
-            // ...on quitte la première étape...
-            discardStep('start');
-            // ...et on passe à la suivante ;-)
-            goToStep('board');
-        });
 
     /**
      * Classe qui identifie les cartes
      */
-    const baseClass = 'pokemon-card';
+    const baseClass = 'pokemon-card'
 
     /**
      * Classe qui indique qu'une carte est face visible
      */
-    const revealedClass = `${baseClass}-revealed`;
+    const revealedClass = `${baseClass}-revealed`
 
     /**
      * Retourne une carte face visible
      * @param {Element} card L'élément DOM représentant la carte
      */
     const reveal = (card) => {
-        card.classList.add(revealedClass);
-        card.setAttribute('aria-expanded', 'true');
-    };
+        card.classList.add(revealedClass)
+        card.setAttribute('aria-expanded', 'true')
+    }
 
     /**
      * Retourne une carte face cachée
      * @param {Element} card L'élément DOM représentant la carte
      */
     const unreveal = (card) => {
-        card.classList.remove(revealedClass);
-        card.setAttribute('aria-expanded', 'false');
-    };
+        card.classList.remove(revealedClass)
+        card.setAttribute('aria-expanded', 'false')
+    }
 
     /**
      * Vérifie si une carte est face visible
      * @param {Element} card L'élément DOM représentant la carte
      * @returns {Boolean} `true` si la carte est face visible, `false` sinon
      */
-    const isRevealed = (card) => card.classList.contains(revealedClass);
+    const isRevealed = (card) => card.classList.contains(revealedClass)
 
     /**
      * Carte qui indique qu'une carte est verrouillée
      */
-    const lockedClass = `${baseClass}-locked`;
+    const lockedClass = `${baseClass}-locked`
 
     /**
      * Verrouille une carte, la rendant impossible à retourner
      * @param {Element} card L'élément DOM représentant la carte
      */
     const lock = (card) => {
-        card.classList.add(lockedClass);
-    };
+        card.classList.add(lockedClass)
+    }
 
     /**
      * Vérifie si une carte est verrouillée
      * @param {Element} card L'élément DOM représentant la carte
      * @returns {Boolean} `true` si la carte est verrouillée, `false` sinon
      */
-    const isLocked = (card) => card.classList.contains(lockedClass);
+    const isLocked = (card) => card.classList.contains(lockedClass)
 
-    /**
-     * Toutes les cartes
-     */
+    // Toutes les cartes du plateau
     const cards = config.steps.board.element.getElementsByClassName(baseClass)
 
     /**
@@ -200,8 +223,8 @@
         /**
          * Nombre de millisecondes écoulées depuis le début de la partie
          */
-        ellapsedTime: 0
-    };
+        ellapsedTime: 0,
+    }
 
     /**
      * Vérifie si la partie est terminée et, le cas échéant, arrête le timer
@@ -211,71 +234,30 @@
         /**
          * Pour vérifier si la partie est terminée, on vérifie si au moins une
          * des conditions suivantes est remplie :
-         * 
+         *
          *  -   Toutes les cartes ont été déouvertes, c'est-à-dire qu'il ne reste
          *      plus de carte à découvrir
          *  -   Le temps imparti est écoulé, c'est-à-dire que la différence entre
          *      le timestamp du début de la partie et le timestamp actuel est
          *      supérieur au temps maximum autorisé
-         * 
+         *
          * Si la partie est terminée...
          */
-        if (board.remainingCards == 0 || board.ellapsedTime > config.maxAllowedTime) {
+        if (
+            board.remainingCards == 0 ||
+            board.ellapsedTime > config.maxAllowedTime
+        ) {
             // ...on arrête le timer
             clearInterval(board.timerId)
-            // ...on enregistre le temps du joueur en secondes
-            score.time = Math.ceil(board.ellapsedTime / 1000)
             // ...et on passe à la dernière étape
             goToStep('end')
         }
     }
 
-
-    const timer = config.steps.board.element.querySelector('.game-board-timer')
-    const timerLabel = timer.querySelector('.game-board-timer-label')
-
-    const updateTimer = () => {
-        /**
-         * On calcule le temps écoulé depuis le début de la partie,
-         * puis on le convertit en secondes (parce que JavaScript est
-         * précis à la milliseconde mais pas nos calculs)
-         */
-        board.ellapsedTime = Date.now() - board.startTime
-
-        // on calcule le temps restant
-        const remainingTime = config.maxAllowedTime - board.ellapsedTime
-
-        /**
-         * On met à jour la jauge de temps en indiquant le ratio de
-         * temps qu'il reste au joueur.
-         * Utiliser un ratio plutôt que les vraies valeurs nous
-         * permet de modifier facilement le temps maximum dans le
-         * JavaScript sans avoir à le modifier également dans le
-         * code HTML. ;-)
-         */
-        timer.value = remainingTime / config.maxAllowedTime
-
-        const remainingSeconds = remainingTime / 1000;
-        
-        // on décompose le temps restant en minutes et secondes...
-        const seconds = remainingSeconds % 60
-        const minutes = (remainingSeconds - seconds) / 60
-
-        // ...on formate avec les zéro initiaux...
-        const formatedSeconds = ('0' + seconds).slice(-2)
-        const formatedMinutes = ('0' + minutes).slice(-2)
-
-        // ...et on met à jour le libellé de la jauge
-        timerLabel.textContent = `${formatedMinutes}:${formatedSeconds}`
-
-        // et enfin on n'oublie pas de lancer la vérification de fin de partie !
-        checkGameState()
-    }
-
     /**
-     * Gestion du clic sur une carte
+     * Gère le clic sur une carte
      */
-    const handle = function () {
+    const handleCardClick = function () {
         /**
          * Ici, `this` aura pour valeur l'élément DOM représentant la carte
          * sur laquelle l'utilisateur aura cliqué.
@@ -303,7 +285,7 @@
              * ne doit rien faire du tout. Utiliser l'early exit permet de
              * faire l'économie d'un gros `if` qui engloberait tout le reste
              * du traitement comme ceci :
-             * 
+             *
              * if (!board.uiWaiting && !isLocked(card)) {
              *     if (isRevealed(card)) {
              *         // ...
@@ -311,12 +293,12 @@
              *         // ...
              *     }
              * }
-             * 
+             *
              * Bien que ça ne change pas grand-chose en termes de performances,
              * certains argueront qu'on gagne en lisibilité puisqu'on n'a pas
              * besoin de lire tout le corps de la fonction pour savoir qu'il ne
              * se passera rien dans ce cas-là.
-             * 
+             *
              * Si vous avez la foi, essayer donc de réécrire le reste de cette
              * fonction avec un peu d'early exit ! ;-)
              */
@@ -329,7 +311,6 @@
             unreveal(card)
             // ...et on indique au jeu qu'il n'y a plus de carte en attente de match
             board.current = null
-
         } else {
             /**
              * Mais dans le cas où l'utilisateur vient de cliquer sur
@@ -348,11 +329,10 @@
                     // ...on indique au jeu qu'il n'y a plus de carte en attente de match
                     board.current = null
                     // ...on décrémente le nombre de cartes restant à matcher
-                    board.remainingCards-= 2
+                    board.remainingCards -= 2
 
                     // ...et on lance la vérification de fin de partie
                     checkGameState()
-
                 } else {
                     // ...mais si la carte ne correspond pas...
 
@@ -360,8 +340,7 @@
                     board.uiWaiting = true
 
                     // ...on diffère le retournement des deux cartes
-                    setTimeout(
-                        () => {
+                    setTimeout(() => {
                         /**
                          * Après avoir attendu un peu (histoire que le
                          * joueur ait vu les Pokémons, quand même !),
@@ -374,12 +353,8 @@
                         board.current = null
                         // ...et on n'oublie pas non plus d'enlever le "mode pause" (celle-ci est tricky)
                         board.uiWaiting = false
-
-                        },
-                        config.board.unrevealDelay
-                    )
+                    }, config.board.unrevealDelay)
                 }
-
             } else {
                 /**
                  * Si aucune carte n'était face visible, on se contente
@@ -391,18 +366,69 @@
         }
     }
 
-    // On attache le gestionnaire du clic aux cartes
-    for (let i = 0, l = cards.length; i < l; i++) {
-        cards[i].addEventListener('click', handle)
+    /*
+     * ==================================================
+     *  Gestion du timer
+     * ==================================================
+     */
+
+    // Élément représentant la jauge du timer (<meter>)
+    const timer = config.steps.board.element.querySelector('.game-board-timer')
+
+    // Label de la jauge du timer
+    const timerLabel = config.steps.board.element.querySelector('.game-board-timer-label')
+
+    // Élément contenant le texte alternatif pour la balise <meter>
+    const timerAlt = timer.querySelector('.game-board-timer-alt')
+
+    const updateTimer = () => {
+        /**
+         * On calcule le temps écoulé depuis le début de la partie,
+         * puis on le convertit en secondes (parce que JavaScript est
+         * précis à la milliseconde mais pas nos calculs)
+         */
+        board.ellapsedTime = Date.now() - board.startTime
+
+        // on calcule le temps restant
+        const remainingTime = config.maxAllowedTime - board.ellapsedTime
+
+        /**
+         * On met à jour la jauge de temps en indiquant le ratio de
+         * temps qu'il reste au joueur.
+         * Utiliser un ratio plutôt que les vraies valeurs nous
+         * permet de modifier facilement le temps maximum dans le
+         * JavaScript sans avoir à le modifier également dans le
+         * code HTML. ;-)
+         */
+        timer.value = remainingTime / config.maxAllowedTime
+
+        const remainingSeconds = remainingTime / 1000
+
+        // on décompose le temps restant en minutes et secondes...
+        const seconds = Math.ceil(remainingSeconds % 60)
+        const minutes = Math.ceil((remainingSeconds - seconds) / 60)
+
+        // ...on formate avec les zéro initiaux...
+        const formatedSeconds = ('0' + seconds).slice(-2)
+        const formatedMinutes = ('0' + minutes).slice(-2)
+
+        // ...et on met à jour le libellé et le texte alternatif à la jauge
+        timerAlt.textContent = timerLabel.textContent = `${formatedMinutes}:${formatedSeconds}`
+
+        // et enfin on n'oublie pas de lancer la vérification de fin de partie !
+        checkGameState()
     }
 
-    /**
-     * Élément DOM représentant l'écran de victoire
+    /*
+     * ==================================================
+     *  Gestion de la victoire ou de la défaite
+     * ==================================================
      */
+
+    // Élément DOM représentant l'écran de victoire
     const victory = config.steps.end.element.querySelector('.game-end-victory')
-    /**
-     * Élément DOM représentant l'écran de défaite
-     */
+
+    // Élément DOM représentant l'écran de défaite
     const defeat = config.steps.end.element.querySelector('.game-end-defeat')
 
     /**
@@ -414,15 +440,30 @@
 
         // on tente de faire enregistrer le score par le serveur
         saveScore()
-            // 
             // .then(TODO)
             // .catch(TODO)
             // on masque l'animation et on affiche le bouton "Rejouer"
             .finally(() => {
-                victory.querySelector('.game-end-victory-spinner').hidden = true;
+                victory.querySelector(
+                    '.game-end-victory-spinner'
+                ).hidden = true
                 victory.querySelector('.game-end-victory-again').hidden = false
             })
     }
+
+    /**
+     * Gestion de l'écran de défaite
+     */
+    const handleDefeat = () => {
+        // on n'afiche pas l'écran de victoire :-(
+        victory.hidden = true
+    }
+
+    /*
+     * ==================================================
+     *  Gestion de l'enregistrement du score
+     * ==================================================
+     */
 
     /**
      * Envoie une requête asynchrone au serveur pour enregistrer
@@ -431,8 +472,7 @@
      */
     const saveScore = () => {
         const payload = new FormData()
-        payload.append('pseudonym', score.player)
-        payload.append('time', score.time)
+        payload.append('time', board.ellapsedTime / 1000)
 
         return fetch('/save-score.php', {
             method: 'post',
@@ -440,11 +480,25 @@
         })
     }
 
-    /**
-     * Gestion de l'écran de défaite
+    /*
+     * ==================================================
+     *  Initialisation du jeu
+     * ==================================================
      */
-    const handleDefeat = () => {
-        victory.hidden = true
+
+    config.steps.start.element
+        .querySelector('.game-start-button')
+        // Lorsque l'utilisateur clique sur le bouton du premier écran...
+        .addEventListener('click', () => {
+            // ...on quitte le premier écran
+            discardStep('start')
+            // ...et on passe au suivant !
+            goToStep('board')
+        })
+
+    // On attache le gestionnaire du clic aux cartes
+    for (let i = 0, l = cards.length; i < l; i++) {
+        cards[i].addEventListener('click', handleCardClick)
     }
 
 })()
