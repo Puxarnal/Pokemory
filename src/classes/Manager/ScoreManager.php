@@ -17,20 +17,21 @@ class ScoreManager extends BaseManager
         $connection = static::getConnection();
 
         $data = [
-            'pseudonym' => $score->getPseudonym(),
             'time' => Utils::intervalToSeconds($score->getTime())
         ];
 
         if ($score->getId()) {
             $query = $connection->prepare(
-                'UPDATE `scores` SET `pseudonym` = :pseudonym, `time` = :time WHERE `id` = :id'
+                'UPDATE `scores` SET = :time WHERE `id` = :id'
             );
+
+            $query->bindValue('id', $score->getId());
 
             return $query->execute($data);
         }
         
         $query = $connection->prepare(
-            'INSERT INTO `scores` (`pseudonym`, `time`) VALUES (:pseudonym, :time)'
+            'INSERT INTO `scores` (`time`) VALUES (:time)'
         );
 
         if ($query->execute($data)) {
@@ -71,11 +72,15 @@ class ScoreManager extends BaseManager
     {
         $connection = static::getConnection();
 
+        if (!$connection) {
+            return [];
+        }
+
         $query = $connection->prepare(
-            'SELECT `id`, `pseudonym`, `time` FROM `scores` ORDER BY `time` ASC LIMIT :limit'
+            'SELECT `id`, `time` FROM `scores` ORDER BY `time` ASC LIMIT :limit'
         );
 
-        $query->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $query->bindParam('limit', $limit, \PDO::PARAM_INT);
 
         if (!$query->execute()) {
             return [];
@@ -86,7 +91,6 @@ class ScoreManager extends BaseManager
             $score = new Score();
             static::setModelProperties($score, [
                 'id' => $row['id'],
-                'pseudonym' => $row['pseudonym'],
                 'time' => Utils::secondsToInterval($row['time'])
             ]);
 
