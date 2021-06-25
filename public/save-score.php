@@ -2,75 +2,68 @@
 // Toujours commencer par importer le minimum syndical
 require_once __DIR__ . '/../src/boot.php';
 
-// imports des classes utilisées dans le script
+// import des classes utilisées dans le script
 use Pokemory\Manager\ScoreManager;
 use Pokemory\Model\Score;
 use Pokemory\Utils;
 
 /**
- * Commençons par récupérer les données envoyées via
+ * Commençons par récupérer la donnée envoyée via
  * la requête HTTP...
- * Si les valeurs attendues ne sont pas définies dans
- * les données postées, on considérera qu'elles ont
- * été transmises avec la valeur `null`. Ceci nous
- * permet de traiter le cas des données absentes dans
- * le processus de validation qui vient ensuite.
+ * 
+ * Si aucune valeur n'est définie dans les données
+ * postées, on considérera qu'elle a été transmise avec
+ * la valeur `null`. Ceci nous permettra de traiter
+ * ce cas comme une erreur de validation.
  * 
  * @see https://www.php.net/manual/fr/migration70.new-features.php#migration70.new-features.null-coalesce-op
  */
-$score_data = [
-    'pseudonym' => $_POST['pseudonym'] ?? null,
-    'time' => $_POST['time'] ?? null
-];
+$time = $_POST['time'] ?? null;
 
 /**
  * It's validation time !
  * (C'est fastidieux mais c'est NÉCESSAIRE)
+ *
+ * On estime que l'entrée `time` est valide si...
  */
-$validation = [
+$time_is_valid = (
     /**
-     * On estime que l'entrée `pseudonym` est valide...
+     * ...si c'est une valeur "numérique" (c'est-à-dire
+     * que PHP estime pouvoir caster en nombre)
+     * 
+     * Remarque :
+     * Les formats les plus courants pour transmettre
+     * des données via une requête HTTP POST n'ont
+     * aucun typage. Par conséquent, lorsque PHP
+     * parse le corps de ces requêtes, il extrait les
+     * données sous la forme de chaînes de caractères
+     * et laisse au développeur la responsabilité
+     * d'effectuer les vérifications et les
+     * manipulations nécessaires à leur interprétation.
+     * Ici, nous devons donc recevoir la durée d'une partie
+     * de jeu sous la forme d'une chaîne de caractères
+     * représentant un nombre.
      */
-    'pseudonym' => (
-        /**
-         * ...si c'est une chaîne comportant au moins un
-         * caractère alphanumérique (oui, c'est arbitraire,
-         * et alors ?)
-         * 
-         * @see https://www.php.net/manual/fr/function.preg-match.php
-         * @see https://www.php.net/manual/fr/regexp.reference.character-classes.php
-         */
-        preg_match('/[[:alnum:]]/', $score_data['pseudonym'])
-    ),
+    is_numeric($time)
     /**
-     * On estime que l'entrée `time` est valide si...
+     * ...et si la valeur numérique représentée est
+     * supérieure à zéro
+     * 
+     * Remarque :
+     * Ici, je suis un peu laxiste car les valeurs
+     * comprises entre 0 et 1 seront valides ; mais
+     * je me le permets car je sais que de toute façon
+     * j'enregistrerai un arrondi à l'entier supérieur
+     * (donc 1 dans ce cas-là). Bien évidemment, on
+     * pourrait choisir de tronquer les valeurs
+     * décimales ou de considérer que seules les valeurs
+     * entières sont valides... It's up to you !
      */
-    'time' => [
-        /**
-         * ...si c'est une valeur "numérique" (c'est-à-dire
-         * que PHP estime pouvoir caster en nombre)
-         */
-        is_numeric($score_data['pseudonym'])
-        /**
-         * ...et si la valeur numérique représentée est
-         * supérieure à zéro
-         * 
-         * Remarque :
-         * Ici, je suis un peu laxiste car les valeurs
-         * comprises entre 0 et 1 seront valides ; mais
-         * je me le permets car je sais que de toute façon
-         * j'enregistrerai un arrondi à l'entier supérieur
-         * (donc 1 dans ce cas-là). Bien évidemment, on
-         * pourrait choisir de tronquer les valeurs
-         * décimales ou de considérer que seules les valeurs
-         * entières sont valides... It's up to you !
-         */
-        && floatval($score_data['pseudonym']) > 0
-    ]
-];
+    && floatval($time) > 0
+);
 
-// Si au moins une donnée est invalide...
-if (in_array(false, $validation)) {
+// Si la donnée fournie est invalide...
+if (!$time_is_valid) {
     /**
      * ...on renvoie un code de réponse HTTP approprié...
      * 
@@ -91,11 +84,15 @@ if (in_array(false, $validation)) {
      * ...et on donne également quelques détails au client
      * (même si celles et ceux qui suivent auront remarqué
      * que ce n'est pas vraiment exploité par ce dernier...)
+     * 
+     * Note:
+     * On génère ici une réponse au format JSON car celle-ci
+     * est destinée à être manipulée via JavaScript et il
+     * se trouve que ce format est facilement manipulable
+     * par ce langage (JSON = JavaScript Objet Notation...)
      */
     header('Content-Type: application/json');
-    echo json_encode([
-        'valid' => $validation
-    ]);
+    echo json_encode(['valid' => false]);
 
     /**
      * Et puisqu'on n'aura pas plus de traitement en cas
@@ -108,26 +105,10 @@ if (in_array(false, $validation)) {
 }
 
 /**
- * Les données sont valides, il est maintenant temps de
- * créer notre objet Score :
+ * La donnée est, il est maintenant temps de
+ * créer notre objet :
  */
 $score = new Score();
-
-/**
- * On renseigne le pseudonyme du joueur sur l'objet.
- * L'appel à `trim()` permet de formater la valeur en
- * lui retirant tout caractère "invisible" en début et
- * en fin de chaîne. Ceci n'a pas d'incidence sur sa
- * validité puisque la validation ne tient pas compte
- * de ces caractères.
- * 
- * Par exemple, la chaîne `'  pseudo '` est considérée
- * valide, tout autant que `'pseudo'`, et la première
- * sera enregistrée en base de donnée comme la seconde.
- * 
- * @see https://www.php.net/manual/fr/function.trim.php
- */
-$score->setPseudonym(trim($score_data['pseudonym']));
 
 /**
  * La classe Score s'attend à ce qu'on lui donne le temps
@@ -143,7 +124,8 @@ $score->setPseudonym(trim($score_data['pseudonym']));
  * Conversion: string => float
  * Je vous avais bien dit que j'allais arrondir, non ? ;-)
  */
-$seconds = round(floatval($score_data['time']));
+$seconds = round(floatval($time));
+
 /**
  * Conversion: float => DateInterval
  * Malheureusement PHP ne fournit pas de moyen natif de

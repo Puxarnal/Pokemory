@@ -15,11 +15,6 @@ class Score
     protected $id;
 
     /**
-     * @property string $pseudonym Le pseudonyme du joueur
-     */
-    protected $pseudonym;
-
-    /**
      * @property DateInterval $time Le temps du joueur
      */
     protected $time;
@@ -31,27 +26,6 @@ class Score
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * Retourne le pseudonyme du joueur
-     * @return string|null
-     */
-    public function getPseudonym(): ?string
-    {
-        return $this->pseudonym;
-    }
-
-    /**
-     * Renseigne le pseudonyme du joueur
-     * @param string  $pseudonym
-     * @return static L'objet lui-même pour chaîner les appels de méthodes
-     */
-    public function setPseudonym(string $pseudonym): self
-    {
-        $this->pseudonym = $pseudonym;
-
-        return $this;
     }
 
     /**
