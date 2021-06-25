@@ -110,7 +110,7 @@ use Pokemory\Manager\PokemonManager;
                         ?>
                         <div class="text-center mt-4">
                             <button class="game-start-button btn btn-primary btn-lg" type="button">
-                                Jouer
+                                Commencer
                             </button>
                         </div>
 
@@ -215,12 +215,35 @@ use Pokemory\Manager\PokemonManager;
                         <h1 class="mb-3">
                             Victoire !
                         </h1>
+
+                        <!-- Animation de chargement pendant l'enregistrement du temps -->
                         <div class="game-end-victory-spinner" role="status">
                             Enregistrement de votre score en cours&hellip;
                             <div class="game-end-victory-spinner-rail" aria-hidden="true">
                                 <img class="game-end-victory-spinner-ball" src="/img/poke-ball.png" alt="Pm" />
                             </div>
                         </div>
+
+                        <!-- Messages de retour d'enregistrement -->
+                        <div class="game-end-score-saved alert alert-success" hidden>
+                            <h3>
+                                Youpi !
+                            </h3>
+                            <p>
+                                Ton temps a bien été enregistré !
+                            </p>
+                        </div>
+                        <div class="game-end-score-unsaved alert alert-warning" hidden>
+                            <h3>
+                                Oups&hellip;
+                            </h3>
+                            <p>
+                                Un problème est survenu pendant l'enregistrement de ton temps&hellip;
+                                Tu as quand même kiffé, dis ?
+                            </p>
+                        </div>
+
+
                         <a class="game-end-victory-again btn btn-primary btn-lg" href="/" hidden>
                             Rejouer
                         </a>

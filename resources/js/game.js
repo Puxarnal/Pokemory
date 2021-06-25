@@ -440,8 +440,20 @@
 
         // on tente de faire enregistrer le score par le serveur
         saveScore()
-            // .then(TODO)
-            // .catch(TODO)
+            .then(() => {
+                /**
+                 * Dans le cas où le traitement a abouti, on
+                 * affiche le message de confirmation
+                 */
+                victory.querySelector('.game-end-score-saved').hidden = false
+            })
+            .catch(() => {
+                /**
+                 * Dans le cas où le traitement n'a pas abouti,
+                 * on affiche le message d'erreur générique
+                 */
+                victory.querySelector('.game-end-score-unsaved').hidden = false
+            })
             // on masque l'animation et on affiche le bouton "Rejouer"
             .finally(() => {
                 victory.querySelector(
